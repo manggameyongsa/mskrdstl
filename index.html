@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>갠홈 이름</title>
+    <link rel="stylesheet" href="styles/common.css">
+
+  </head>
+  <body>
+  
+    <div id="container">
+      
+      <div id="content">  
+
+      <div class="main-content back-black">
+        <iframe src="pages/home.html" name="main" id="main" style="width: 100%; height: 100%;"></iframe>
+      </div>
+
+    <header>
+
+      <div class="user-section back-black">
+        <div id="user-info"></div>
+        <button id="login-btn" class="login-btn" style="display:none;">로그인</button>
+        <button id="logout-btn" class="logout-btn" style="display:none;">로그아웃</button>
+      </div>  
+
+      <div class="menu back-black">
+        <nav>
+          <p class="menu-btn"><a href="pages/home.html" target="main">Main</a></p>
+          <p class="menu-btn"><a href="pages/oc.html" target="main">OC</a></p>
+          <p class="menu-btn"><a href="pages/pair.html" target="main">Pair</a></p>
+          <p class="menu-btn"><a href="pages/text.html" target="main">Text</a></p>
+        </nav>
+      </div>
+      
+    </header>
+
+    </div>
+      
+    </div>
+
+    <!-- 로그인/회원가입 모달 -->
+    <div id="auth-modal" class="auth-modal">
+      <div class="auth-modal-content">
+        <div class="auth-modal-header">
+          <h2 id="auth-modal-title">로그인</h2>
+          <button class="auth-close-btn" onclick="closeAuthModal()">✕</button>
+        </div>
+
+        <div id="auth-error" class="auth-error"></div>
+
+        <!-- 로그인 폼 -->
+        <div id="login-form">
+          <div class="auth-form-group">
+            <label for="login-email">이메일</label>
+            <input type="email" id="login-email" placeholder="이메일을 입력하세요" required>
+          </div>
+          <div class="auth-form-group">
+            <label for="login-password">비밀번호</label>
+            <input type="password" id="login-password" placeholder="비밀번호를 입력하세요" required>
+          </div>
+          <div class="auth-buttons">
+            <button class="auth-btn auth-btn-primary" onclick="handleLogin()">로그인</button>
+            <button class="auth-btn auth-btn-secondary" onclick="closeAuthModal()">닫기</button>
+          </div>
+          <div class="auth-toggle-link">
+            계정이 없으신가요? <a onclick="toggleAuthForm()">회원가입</a>
+          </div>
+        </div>
+
+        <!-- 회원가입 폼 -->
+        <div id="signup-form" style="display: none;">
+          <div class="auth-form-group">
+            <label for="signup-email">이메일</label>
+            <input type="email" id="signup-email" placeholder="이메일을 입력하세요" required>
+          </div>
+          <div class="auth-form-group">
+            <label for="signup-password">비밀번호</label>
+            <input type="password" id="signup-password" placeholder="비밀번호를 입력하세요 (6자 이상)" required>
+          </div>
+          <div class="auth-form-group">
+            <label for="signup-name">닉네임</label>
+            <input type="text" id="signup-name" placeholder="닉네임을 입력하세요" required>
+          </div>
+          <div class="auth-buttons">
+            <button class="auth-btn auth-btn-primary" onclick="handleSignup()">회원가입</button>
+            <button class="auth-btn auth-btn-secondary" onclick="closeAuthModal()">닫기</button>
+          </div>
+          <div class="auth-toggle-link">
+            이미 계정이 있으신가요? <a onclick="toggleAuthForm()">로그인</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    // Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmAeayjJDPHIA03uhxj38tfzg1VD57NTA",
+      authDomain: "yongsa-oc.firebaseapp.com",
+      projectId: "yongsa-oc",
+      storageBucket: "yongsa-oc.appspot.com",
+      messagingSenderId: "942437036530",
+      appId: "1:942437036530:web:7854c166440aa905cebb6b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+  // 관리자 이메일 목록 (index.html과 동일하게)
+  const ADMIN_EMAILS = [
+    "jayler13579@gmail.com"
+  ];
+
+  // 사용자 역할 조회 함수 - 이메일 기반으로 변경
+  async function getUserRole(user) {
+    if (ADMIN_EMAILS.includes(user.email)) {
+      return 'admin';
+    }
+    return 'user';
+  }
+
+// 로그인 상태 모니터링
+onAuthStateChanged(auth, async (user) => {
+  const userInfo = document.getElementById('user-info');
+  const loginBtn = document.getElementById('login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  if (user) {
+    const role = await getUserRole(user);
+    
+    window.currentUser = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      role: role
+    };
+
+    userInfo.innerHTML = `<span>${user.displayName}</span>`;
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'block';
+  } else {
+    window.currentUser = null;
+    userInfo.innerHTML = '';
+    loginBtn.style.display = 'block';
+    logoutBtn.style.display = 'none';
+  }
+});
+
+    // 로그인 모달 열기
+    window.openAuthModal = () => {
+      document.getElementById('auth-modal').classList.add('active');
+      clearAuthForm();
+    };
+
+    // 로그인 모달 닫기
+    window.closeAuthModal = () => {
+      document.getElementById('auth-modal').classList.remove('active');
+      clearAuthForm();
+    };
+
+    // 로그인/회원가입 폼 전환
+    window.toggleAuthForm = () => {
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const title = document.getElementById('auth-modal-title');
+
+      if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        title.textContent = '로그인';
+      } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        title.textContent = '회원가입';
+      }
+      clearError();
+    };
+
+    // 폼 초기화
+    function clearAuthForm() {
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('signup-email').value = '';
+      document.getElementById('signup-password').value = '';
+      document.getElementById('signup-name').value = '';
+      clearError();
+    }
+
+    // 에러 메시지 표시
+    function showError(message) {
+      const errorDiv = document.getElementById('auth-error');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    // 에러 메시지 초기화
+    function clearError() {
+      const errorDiv = document.getElementById('auth-error');
+      errorDiv.textContent = '';
+      errorDiv.classList.remove('show');
+    }
+
+    // 로그인 처리
+    window.handleLogin = async () => {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showError('이메일과 비밀번호를 입력하세요.');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        closeAuthModal();
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          showError('존재하지 않는 계정입니다.');
+        } else if (error.code === 'auth/wrong-password') {
+          showError('비밀번호가 틀렸습니다.');
+        } else if (error.code === 'auth/invalid-email') {
+          showError('올바른 이메일 형식이 아닙니다.');
+        } else {
+          showError('로그인 실패: ' + error.message);
+        }
+      }
+    };
+
+    // 회원가입 처리
+    window.handleSignup = async () => {
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const name = document.getElementById('signup-name').value;
+
+      if (!email || !password || !name) {
+        showError('모든 항목을 입력하세요.');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('비밀번호는 6자 이상이어야 합니다.');
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, {
+          displayName: name
+        });
+        closeAuthModal();
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          showError('이미 사용 중인 이메일입니다.');
+        } else if (error.code === 'auth/weak-password') {
+          showError('비밀번호가 너무 약합니다.');
+        } else if (error.code === 'auth/invalid-email') {
+          showError('올바른 이메일 형식이 아닙니다.');
+        } else {
+          showError('회원가입 실패: ' + error.message);
+        }
+      }
+    };
+
+    // 로그아웃
+    window.handleLogout = async () => {
+      await signOut(auth);
+    };
+
+    // 로그인 버튼 클릭
+    document.getElementById('login-btn').onclick = openAuthModal;
+
+    // 로그아웃 버튼 클릭
+    document.getElementById('logout-btn').onclick = handleLogout;
+
+    // 모달 배경 클릭으로 닫기
+    document.getElementById('auth-modal').onclick = (event) => {
+      if (event.target.id === 'auth-modal') {
+        closeAuthModal();
+      }
+    };
+  </script>
+</html>
