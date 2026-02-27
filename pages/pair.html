@@ -1,0 +1,378 @@
+<link rel="stylesheet" href="../styles/common.css">
+<style>
+  /* 게시판 헤더 */
+  .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-family: var(--font-title);
+  }
+
+  .board-header h1 { margin: 0; }
+
+  /* 1열 리스트 정렬 */
+  .gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* 배경 이미지가 들어간 카드 스타일 */
+  .post-card {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #333;
+    border: 1px solid #ddd;
+  }
+
+  .post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  /* 배경 이미지 레이어 */
+  .post-card-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+  }
+
+  /* 글자 가독성을 위한 어두운 오버레이 */
+  .post-card-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0,0,0,0.3) 20%,rgba(0, 0, 0, 0) 100%);
+    z-index: 2;
+  }
+
+  /* 카드 내 텍스트 정보 */
+  .post-info {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 30px 25px;
+    color: #fff;
+  }
+
+  .main-title {
+    display: block;
+    font-weight: bold;
+    font-size: 16pt;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .main-subtitle {
+    display: block;
+    font-size: 10.5pt;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+
+  /* 모달 공통 스타일 */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal.active { display: flex; justify-content: center; align-items: center; }
+
+  .modal-content, .detail-modal-content {
+    background-color: #f0f0f0;
+    border: 3px solid #333;
+    padding: 25px;
+    width: 90%; max-width: 700px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 상세 모달 헤더 */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+  }
+
+  #detail-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  /* 폼 그룹 */
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+  .form-group input, .form-group textarea {
+    width: 100%; padding: 10px; border: 2px solid #333; box-sizing: border-box;
+  }
+  .form-group textarea { min-height: 120px; resize: vertical; }
+
+  /* 상세 보기 레이아웃 */
+  .display-content {  }
+  .detail-image { width: 100%; height: auto; border: 1px solid #333; flex-shrink: 0; }
+  .detail-text-area { margin-top: 10px; }
+  .detail-subtitle { font-size: 12pt; color: #666; margin-bottom: 15px; font-style: italic; }
+  .detail-content { font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+  .detail-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; }
+
+  @media (max-width: 600px) {
+    .detail-image { max-width: 100%; margin: 0 auto; }
+    .post-card { height: 220px; }
+  }
+</style>
+
+<main>
+  <div class="board-header">
+    <h1>Pair</h1>
+    <button id="write-btn" class="write-btn" style="display:none;">글쓰기</button>
+  </div>
+
+  <template id="post-card-template">
+    <div class="post-card">
+      <div class="post-card-bg"></div>
+      <div class="post-card-overlay"></div>
+      <div class="post-info">
+        <span class="main-title"></span>
+        <span class="main-subtitle"></span>
+      </div>
+    </div>
+  </template>
+
+  <div id="gallery" class="gallery"></div>
+
+  <div id="write-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header" style="border:none;">
+        <h2 id="modal-title" style="margin:0;">새 글쓰기</h2>
+        <button class="close-btn" onclick="closeWriteModal()">✕</button>
+      </div>
+      <form onsubmit="handleSavePost(event)">
+        <div class="form-group">
+          <label>제목 *</label>
+          <input type="text" id="post-title" placeholder="제목을 입력하세요" required>
+        </div>
+        <div class="form-group">
+          <label>부제목</label>
+          <input type="text" id="post-subtitle" placeholder="부제목을 입력하세요">
+        </div>
+        <div class="form-group">
+          <label>내용 *</label>
+          <textarea id="post-content" placeholder="내용을 입력하세요" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>이미지 URL</label>
+          <input type="url" id="post-image" placeholder="https://example.com/image.jpg">
+        </div>
+        <div class="form-buttons">
+          <button type="button" class="btn btn-cancel" onclick="closeWriteModal()">취소</button>
+          <button type="submit" class="btn btn-submit">등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="detail-modal" class="modal">
+    <div class="detail-modal-content">
+      <div class="modal-header">
+        <div id="detail-title">게시글 제목</div>
+        <button class="close-btn" onclick="closeDetailModal()">✕</button>
+      </div>
+      <div id="detail-body">
+        <div id="display-subtitle" class="detail-subtitle"></div>
+        <div class="display-content">
+          <img id="display-image" src="" alt="이미지" class="detail-image" style="display:none;">
+          <div class="detail-text-area">
+            <div id="display-content" class="detail-content"></div>
+          </div>
+        </div>
+        <div class="detail-buttons">
+          <button class="btn btn-back" onclick="closeDetailModal()">닫기</button>
+          <span id="admin-controls" style="display:none;">
+            <button id="edit-btn-placeholder" class="btn btn-edit">수정</button>
+            <button id="delete-btn-placeholder" class="btn btn-delete">삭제</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCmAeayjJDPHIA03uhxj38tfzg1VD57NTA",
+    authDomain: "yongsa-oc.firebaseapp.com",
+    projectId: "yongsa-oc",
+    storageBucket: "yongsa-oc.appspot.com",
+    messagingSenderId: "942437036530",
+    appId: "1:942437036530:web:7854c166440aa905cebb6b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  let editingPostId = null;
+  let allPosts = {};
+
+  async function getUserRole(userId) {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      return userDoc.exists() ? userDoc.data().role : 'user';
+    } catch { return 'user'; }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    const writeBtn = document.getElementById('write-btn');
+    if (user) {
+      const role = await getUserRole(user.uid);
+      currentUser = { uid: user.uid, role: role };
+      writeBtn.style.display = role === 'admin' ? 'block' : 'none';
+    } else {
+      currentUser = null;
+      writeBtn.style.display = 'none';
+    }
+    loadPosts();
+  });
+
+  window.openWriteModal = () => {
+    editingPostId = null;
+    document.getElementById('modal-title').textContent = '새 글쓰기';
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-subtitle').value = '';
+    document.getElementById('post-content').value = '';
+    document.getElementById('post-image').value = '';
+    document.getElementById('write-modal').classList.add('active');
+  };
+
+  window.closeWriteModal = () => document.getElementById('write-modal').classList.remove('active');
+
+  window.openEditModal = (postId) => {
+    const post = allPosts[postId];
+    editingPostId = postId;
+    document.getElementById('modal-title').textContent = '글 수정하기';
+    document.getElementById('post-title').value = post.title || '';
+    document.getElementById('post-subtitle').value = post.subtitle || '';
+    document.getElementById('post-content').value = post.content || '';
+    document.getElementById('post-image').value = post.imageUrl || '';
+    closeDetailModal();
+    document.getElementById('write-modal').classList.add('active');
+  };
+
+  window.handleSavePost = async (event) => {
+    event.preventDefault();
+    const data = {
+      title: document.getElementById('post-title').value,
+      subtitle: document.getElementById('post-subtitle').value,
+      content: document.getElementById('post-content').value,
+      imageUrl: document.getElementById('post-image').value,
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      if (editingPostId) {
+        await updateDoc(doc(db, 'pair_posts', editingPostId), data);
+      } else {
+        await addDoc(collection(db, 'pair_posts'), { ...data, createdAt: serverTimestamp(), userId: currentUser.uid });
+      }
+      closeWriteModal();
+    } catch (e) { alert(e.message); }
+  };
+
+  window.loadPosts = () => {
+    const q = query(collection(db, 'pair_posts'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      allPosts = {};
+      const template = document.getElementById('post-card-template');
+
+      snapshot.forEach((docSnap) => {
+        const post = { ...docSnap.data(), id: docSnap.id };
+        allPosts[post.id] = post;
+
+        const card = template.content.cloneNode(true);
+        const cardDiv = card.querySelector('.post-card');
+        const bgDiv = card.querySelector('.post-card-bg');
+        
+        card.querySelector('.main-title').textContent = post.title;
+        card.querySelector('.main-subtitle').textContent = post.subtitle || '';
+
+        if (post.imageUrl) {
+          bgDiv.style.backgroundImage = `url('${post.imageUrl}')`;
+        } else {
+          bgDiv.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+        }
+
+        cardDiv.onclick = () => openDetailModal(post.id);
+        gallery.appendChild(card);
+      });
+    });
+  };
+
+  window.openDetailModal = (postId) => {
+    const post = allPosts[postId];
+    const isAdmin = currentUser && currentUser.role === 'admin';
+
+    document.getElementById('detail-title').textContent = post.title;
+    document.getElementById('display-subtitle').textContent = post.subtitle || '';
+
+    const contentArea = document.getElementById('display-content');
+    contentArea.innerHTML = linkify(post.content);
+
+    const img = document.getElementById('display-image');
+    if (post.imageUrl) { 
+      img.src = post.imageUrl; 
+      img.style.display = 'block'; 
+    } else { img.style.display = 'none'; }
+
+    const controls = document.getElementById('admin-controls');
+    controls.style.display = isAdmin ? 'inline-block' : 'none';
+    if (isAdmin) {
+      document.getElementById('edit-btn-placeholder').onclick = () => openEditModal(postId);
+      document.getElementById('delete-btn-placeholder').onclick = () => deletePost(postId);
+    }
+    document.getElementById('detail-modal').classList.add('active');
+  };
+
+  window.closeDetailModal = () => document.getElementById('detail-modal').classList.remove('active');
+
+  window.deletePost = async (id) => {
+    if (confirm('삭제하시겠습니까?')) {
+      await deleteDoc(doc(db, 'pair_posts', id));
+      closeDetailModal();
+    }
+  };
+
+  function linkify(text) {
+    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="post-link">[LINK]</a>');
+  }
+
+  document.getElementById('write-btn').onclick = openWriteModal;
+</script>
