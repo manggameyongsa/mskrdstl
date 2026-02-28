@@ -127,6 +127,8 @@ a{
   height: 96vh;
   max-height: 800px;
   display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
   align-items: center;
   gap: 10px;
   /* 상하좌우 정중앙 정렬하기 */
@@ -134,7 +136,6 @@ a{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
 }
 
 .main-content{
