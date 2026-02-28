@@ -72,8 +72,8 @@ body{
 
 header{
   min-width: 110px;
-  height: -webkit-fill-available;
   z-index: 99999;
+  margin: 0;
 }
 
 a{
@@ -129,7 +129,7 @@ a{
   display: flex;
   flex-direction: row-reverse;
   justify-content: flex-end;
-  align-items: center;
+  align-items: stretch;
   gap: 10px;
   /* 상하좌우 정중앙 정렬하기 */
   position: absolute;
@@ -172,6 +172,12 @@ a{
 
 .menu-btn{
   margin: 12px auto;
+}
+
+.menu back-black{}
+
+menu back-black nav{
+  display: contents;
 }
 
 
