@@ -2,15 +2,7 @@
 <style>
     .main-box{
     margin: 0 auto;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
     }
 
     .main-box-content{
@@ -36,7 +28,7 @@
     }
 
     .content-body{
-        margon-top:10px;
+        margin-top:10px;
         font-size:12pt
     }
     
@@ -62,3 +54,19 @@
         
     </div>
 </main>
+
+<script>
+    (function($) {
+
+	var tabs =  $(".tabs li a");
+  
+	tabs.click(function() {
+		var content = this.hash.replace('/','');
+		tabs.removeClass("active");
+		$(this).addClass("active");
+    $("#content").find('p').hide();
+    $(content).fadeIn(200);
+	});
+
+})(jQuery);
+</script>
