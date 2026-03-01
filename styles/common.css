@@ -151,7 +151,7 @@ a{
   align-items: center;
   justify-content: space-around;
   gap: 10px;
-  padding: 20px;
+  padding: 12px;
   position: relative;
   align-self: stretch;
   margin-bottom: 10px;
@@ -173,8 +173,6 @@ a{
 .menu-btn{
   margin: 12px auto;
 }
-
-.menu{}
 
 .menu nav{
   display: contents;
@@ -499,7 +497,10 @@ a{
     position: relative;
     display: block;
    }
-
+    
+.menu{
+  padding: 12px;
+}
   .menu nav{
     display: flex;
   }
