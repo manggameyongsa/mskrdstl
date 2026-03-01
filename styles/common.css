@@ -486,6 +486,10 @@ a{
 
 
   @media (max-width: 640px) {
+body{
+  height: calc(100vh - 60px)
+}
+    
   header{
     margin: 0 0 12px 0;
   }
