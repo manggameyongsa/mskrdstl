@@ -493,6 +493,13 @@ body{
   header{
     margin: 0 0 12px 0;
   }
+
+.user-section{
+  display: flex;
+    }
+  .login-btn, .logout-btn{
+    width: initial;
+  }
     
    #content{
     max-width: 100%;
@@ -510,7 +517,7 @@ body{
   }
 
   .menu-btn{
-    margin: 12px 12px; 
+    margin: 0 12px; 
   }
 
   }
