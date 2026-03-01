@@ -174,9 +174,9 @@ a{
   margin: 12px auto;
 }
 
-.menu back-black{}
+.menu{}
 
-menu back-black nav{
+.menu nav{
   display: contents;
 }
 
@@ -493,5 +493,13 @@ menu back-black nav{
     height: 100%;
     max-height: -webkit-fill-available;
     position: relative;
+    display: block;
    }
+
+  .menu nav{
+    display: flex;
+  }
+
+  .menu-btn{
+    margin: 12px 12px; 
   }
