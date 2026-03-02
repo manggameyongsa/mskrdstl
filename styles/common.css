@@ -371,12 +371,6 @@ a{
 
 /* 페이지 */
 
-  main {
-    margin: 0 auto;
-    padding: 12px;
-  }
-
-
   .write-btn {
     padding: 5px 10px;
     background: var(--button-background-color);
