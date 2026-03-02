@@ -107,13 +107,17 @@ a{
     box-shadow: 5px 5px;
 }
 
+main{
+  padding:12px;
+  margin: 0 auto;
+}
+
 
 #main {
   border: none;
   flex-grow: 1;
   width: 100%;
   overflow: auto;
-  padding:12px;
 }
 
 #container{
