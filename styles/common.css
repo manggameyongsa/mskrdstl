@@ -4,29 +4,71 @@
 }
 
 @font-face {
-    font-family: 'KboDiamondGothic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/KBO-Dia-Gothic_light.woff') format('woff');
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-1Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-2ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-3Light.woff2') format('woff2');
     font-weight: 300;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'KboDiamondGothic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/KBO-Dia-Gothic_medium.woff') format('woff');
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-4Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
     font-weight: 500;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'KboDiamondGothic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/KBO-Dia-Gothic_bold.woff') format('woff');
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-6SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
     font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-9Black.woff2') format('woff2');
+    font-weight: 900;
     font-display: swap;
 }
 
 :root {
   --font: 'Pretendard-Regular', sans-serif;
-  --font-title: 'KboDiamondGothic', sans-serif;
+  --font-title: 'Paperozi', sans-serif;
 
   --background-color: #eee;
   --container-background-color: #f0f0f0;
@@ -42,13 +84,10 @@
   --scrollbar-color: #1c1c1c;
 
   --post-card-border-radius: 12px;
-  --post-card-border: 1px solid #ddd;
-
-  --memo-card-border-radius: 12px;
-  --memo-card-border: 1px solid#ddd;
+  --post-card-border: 2px solid #1c1c1c;
 
   --gallery-card-border-radius: 12px;
-  --gallery-card-border: 1px solid #ddd;
+  --gallery-card-border: 2px solid #1c1c1c;
 
   --button-background-color: white;
   --button-text-color: black;
