@@ -4,13 +4,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     font-family: var(--font-title);
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
   }
 
   .board-header h1 { margin: 0; }
 
-  /* 모달 기본 스타일 */
+  /* 글쓰기 모달 (관리자용) */
   .modal {
     display: none;
     position: fixed;
@@ -20,27 +22,66 @@
     background-color: rgba(0, 0, 0, 0.5);
     overflow: auto;
   }
-
   .modal.active { display: flex; justify-content: center; align-items: center; }
-
   .modal-content {
     background-color: #f0f0f0;
     border: 3px solid #333;
     padding: 30px;
     width: 90%; max-width: 600px;
     max-height: 90vh; overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
 
-  .modal-header { 
+  /* 게시글 리스트 스타일 */
+  .gallery {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #333;
-    padding-bottom: 12px;
-    margin-bottom: 15px; 
+    flex-direction: column;
+    gap: 40px; /* 게시글 사이 간격 */
+    margin: 0 auto;
   }
-  .modal-header h2 { margin: 0; font-family: var(--font-title); }
+
+  .post-item {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+  }
+
+  .post-item:last-child { border-bottom: none; }
+
+  .post-header { margin-bottom: 15px; }
+  .main-title { display: block; font-weight: bold; font-size: 18pt; margin-bottom: 5px; color: #000; }
+  .main-subtitle { display: block; font-size: 11pt; color: #666; }
+  
+  /* 게시글 본문 스타일 */
+  .post-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .post-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    align-self: flex-start; /* 이미지 왼쪽 정렬 */
+  }
+
+  .post-full-content {
+    font-size: 11pt;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap; /* 줄바꿈 그대로 표시 */
+    word-wrap: break-word;
+  }
+
+  /* 관리자 전용 버튼 스타일 */
+  .post-admin-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: flex-end;
+  }
 
   .form-group { margin-bottom: 20px; }
   .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
@@ -48,68 +89,6 @@
     width: 100%; padding: 10px;
     border: 2px solid #333;
     font-family: inherit; box-sizing: border-box;
-  }
-  .form-group textarea { min-height: 150px; resize: vertical; }
-
-  .form-buttons { display: flex; gap: 10px; justify-content: flex-end; }
-
-  /* 텍스트형 리스트 스타일 */
-  .gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin: 0 auto;
-  }
-
-  .post-card {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    border-bottom: 1px solid #333;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .post-card:hover {
-    background-color: #f9f9f9;
-    transform: translateX(5px);
-  }
-
-  .post-info { overflow: hidden; }
-  .main-title { display: block; font-weight: bold; font-size: 14pt; margin-bottom: 5px; color: #000; }
-  .main-subtitle { display: block; font-size: 10pt; color: #666; margin-bottom: 10px; }
-  
-  /* 본문 미리보기 스타일 */
-  .main-content-preview {
-    display: block;
-    font-size: 11pt;
-    color: #444;
-    line-height: 1.5;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* 내용이 길면 ...으로 표시 */
-  }
-
-  /* 상세보기 모달 */
-  .detail-modal-content {
-    background-color: #f0f0f0;
-    border: 3px solid #333;
-    padding: 20px;
-    width: 90%; max-width: 800px;
-    max-height: 90vh; overflow-y: auto;
-  }
-
-  .display-content { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; }
-  .detail-image { width: 100%; max-width: 400px; height: auto; border: 1px solid #333; margin: 0 auto; }
-  .detail-text-area { width: 100%; }
-  #detail-title { font-size: 18pt; font-weight: bold;}
-  .detail-subtitle { font-size: 12pt; color: #666; margin-bottom: 20px; }
-  .detail-content { font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
-  .detail-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px; }
-
-  @media (max-width: 600px) {
-    .post-card { padding: 15px; }
   }
 </style>
 
@@ -119,21 +98,28 @@
     <button id="write-btn" class="write-btn" style="display:none;">글쓰기</button>
   </div>
 
-  <template id="post-card-template">
-    <div class="post-card">
-      <div class="post-info">
+  <div id="gallery" class="gallery"></div>
+
+  <template id="post-template">
+    <div class="post-item">
+      <div class="post-header">
         <span class="main-title"></span>
         <span class="main-subtitle"></span>
-        <span class="main-content-preview"></span>
+      </div>
+      <div class="post-body">
+        <img class="post-image" style="display:none;">
+        <div class="post-full-content"></div>
+      </div>
+      <div class="post-admin-controls" style="display:none;">
+        <button class="btn btn-edit">수정</button>
+        <button class="btn btn-delete">삭제</button>
       </div>
     </div>
   </template>
 
-  <div id="gallery" class="gallery"></div>
-
   <div id="write-modal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 id="modal-title">새 글쓰기</h2>
         <button class="close-btn" onclick="closeWriteModal()">✕</button>
       </div>
@@ -148,41 +134,17 @@
         </div>
         <div class="form-group">
           <label>내용 *</label>
-          <textarea id="post-content" required></textarea>
+          <textarea id="post-content" required style="min-height: 200px;"></textarea>
         </div>
         <div class="form-group">
           <label>이미지 URL</label>
           <input type="url" id="post-image">
         </div>
-        <div class="form-buttons">
+        <div class="form-buttons" style="display: flex; gap: 10px; justify-content: flex-end;">
           <button type="button" class="btn btn-cancel" onclick="closeWriteModal()">취소</button>
           <button type="submit" class="btn btn-submit">등록</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <div id="detail-modal" class="modal">
-    <div class="detail-modal-content">
-      <div class="modal-header">
-        <div id="detail-title"></div>
-        <button class="close-btn" onclick="closeDetailModal()">✕</button>
-      </div>
-      
-      <div id="display-subtitle" class="detail-subtitle"></div>
-      <div class="display-content">
-        <img id="display-image" src="" class="detail-image" style="display:none;">
-        <div class="detail-text-area">
-          <div id="display-content" class="detail-content"></div>
-        </div>
-      </div>
-      <div class="detail-buttons">
-        <button class="btn btn-back" onclick="closeDetailModal()">닫기</button>
-        <span id="admin-controls" style="display:none;">
-          <button id="edit-btn-placeholder" class="btn btn-edit">수정</button>
-          <button id="delete-btn-placeholder" class="btn btn-delete">삭제</button>
-        </span>
-      </div>
     </div>
   </div>
 </main>
@@ -249,7 +211,6 @@
     document.getElementById('post-subtitle').value = post.subtitle || '';
     document.getElementById('post-content').value = post.content || '';
     document.getElementById('post-image').value = post.imageUrl || '';
-    closeDetailModal();
     document.getElementById('write-modal').classList.add('active');
   };
 
@@ -274,69 +235,54 @@
   };
 
   window.loadPosts = () => {
-    // 순서를 'asc' (오름차순)으로 변경하여 첫 글이 맨 위로 오게 함
     const q = query(collection(db, 'home_posts'), orderBy('createdAt', 'asc'));
     onSnapshot(q, (snapshot) => {
       const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
       allPosts = {};
-      const template = document.getElementById('post-card-template');
+      const template = document.getElementById('post-template');
 
       snapshot.forEach((docSnap) => {
         const post = { ...docSnap.data(), id: docSnap.id };
         allPosts[post.id] = post;
 
-        const card = template.content.cloneNode(true);
-        const cardDiv = card.querySelector('.post-card');
+        const item = template.content.cloneNode(true);
+        const itemDiv = item.querySelector('.post-item');
         
-        card.querySelector('.main-title').textContent = post.title;
-        card.querySelector('.main-subtitle').textContent = post.subtitle || '';
+        item.querySelector('.main-title').textContent = post.title;
+        item.querySelector('.main-subtitle').textContent = post.subtitle || '';
         
-        // 본문 미리보기 추가 (공백 제거 후 표시)
-        const previewText = post.content ? post.content.substring(0, 100).replace(/\n/g, ' ') : '';
-        card.querySelector('.main-content-preview').textContent = previewText;
+        // 전문 링크 및 텍스트 처리
+        item.querySelector('.post-full-content').innerHTML = linkify(post.content);
 
-        cardDiv.onclick = () => openDetailModal(post.id);
-        gallery.appendChild(card);
+        // 이미지 처리
+        const img = item.querySelector('.post-image');
+        if (post.imageUrl) {
+          img.src = post.imageUrl;
+          img.style.display = 'block';
+        }
+
+        // 관리자 버튼 노출 처리
+        if (currentUser && currentUser.role === 'admin') {
+          const controls = item.querySelector('.post-admin-controls');
+          controls.style.display = 'flex';
+          item.querySelector('.btn-edit').onclick = () => openEditModal(post.id);
+          item.querySelector('.btn-delete').onclick = () => deletePost(post.id);
+        }
+
+        gallery.appendChild(item);
       });
     });
   };
 
-  window.openDetailModal = (postId) => {
-    const post = allPosts[postId];
-    const isAdmin = currentUser && currentUser.role === 'admin';
-
-    document.getElementById('detail-title').textContent = post.title;
-    document.getElementById('display-subtitle').textContent = post.subtitle || '';
-
-    const contentArea = document.getElementById('display-content');
-    contentArea.innerHTML = linkify(post.content);
-
-    const img = document.getElementById('display-image');
-    if (post.imageUrl) { 
-      img.src = post.imageUrl; 
-      img.style.display = 'block'; 
-    } else { img.style.display = 'none'; }
-
-    const controls = document.getElementById('admin-controls');
-    controls.style.display = isAdmin ? 'inline-block' : 'none';
-    if (isAdmin) {
-      document.getElementById('edit-btn-placeholder').onclick = () => openEditModal(postId);
-      document.getElementById('delete-btn-placeholder').onclick = () => deletePost(postId);
-    }
-    document.getElementById('detail-modal').classList.add('active');
-  };
-
-  window.closeDetailModal = () => document.getElementById('detail-modal').classList.remove('active');
-
   window.deletePost = async (id) => {
     if (confirm('삭제하시겠습니까?')) {
       await deleteDoc(doc(db, 'home_posts', id));
-      closeDetailModal();
     }
   };
 
   function linkify(text) {
+    if (!text) return '';
     return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="post-link">LINK</a>');
   }
 
