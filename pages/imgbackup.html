@@ -1,111 +1,41 @@
 <link rel="stylesheet" href="../styles/common.css">
 <style>
-  .board-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    font-family: var(--font-title);
-  }
-
+  /* 기존 스타일 유지 */
+  .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-family: var(--font-title); }
   .board-header h1 { margin: 0; }
-
-  /* 모달 스타일 */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: var(--modal-back-color);
-    overflow: auto;
-  }
-
-  .modal.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .modal-header { 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: var(--post-card-border);
-    padding-bottom: 12px;
-    margin-bottom: 15px;
-                }
-  .modal-header h2 { margin: 0; font-family: var(--font-title); }
-
+  .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-back-color); overflow: auto; }
+  .modal.active { display: flex; justify-content: center; align-items: center; }
+  .modal-content { background: #fff; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; border: 2px solid #333; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 15px; }
   .form-group { margin-bottom: 15px; }
   .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
-  .form-group input, .form-group textarea {
-    width: 100%; padding: 10px; border: 1px solid #ccc; box-sizing: border-box;
-  }
-  .form-group textarea { min-height: 150px; resize: vertical; }
+  .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; }
+  .form-group textarea { min-height: 100px; resize: vertical; }
+  
+  /* 이미지 입력 리스트 스타일 */
+  .image-input-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .image-input-item { display: flex; gap: 5px; }
+  .btn-add-img { background: #eee; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer; font-size: 0.9em; margin-bottom: 10px; }
+  .btn-remove-img { background: #ffeded; border: 1px solid #ffcccc; color: #ff0000; cursor: pointer; padding: 0 10px; }
 
-  .form-buttons { display: flex; gap: 10px; justify-content: flex-end; }
-
-  /* 갤러리 스타일 */
-  .gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-  }
-
-  .post-card {
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: #fff;
-    color: #000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #eee;
-  }
-
-  .post-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  .post-thumbnail {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f4f4f4;
-  }
-
+  /* 갤러리 및 카드 */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+  .post-card { overflow: hidden; cursor: pointer; transition: all 0.3s; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid #eee; }
+  .post-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
+  .post-thumbnail { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f4f4f4; }
   .post-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
-
-  .post-thumbnail-placeholder {
-    font-size: 24px; color: #ccc; font-weight: bold;
-  }
-
   .post-info { padding: 12px; }
   .main-title { font-weight: bold; font-size: 13pt; display: block; margin-bottom: 5px; }
   .main-subtitle { font-size: 10pt; color: #666; display: block; text-align: right; }
 
-  /* 상세 모달 내 이미지 크기 수정 */
-  .detail-image {
-    width: 100%;
-    max-width: 100%; /* 요청하신 대로 100% 설정 */
-    height: auto;
-    margin-bottom: 20px;
-    display: block;
-  }
-
-  .display-content { display: flex; flex-direction: column; gap: 10px; }
-  #detail-title { font-size: 18pt; font-weight: bold; margin-bottom: 5px; }
+  /* 상세 모달 내 이미지 리스트 */
+  .detail-image-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .detail-image { width: 100%; height: auto; display: block; }
   .detail-subtitle { font-size: 12pt; color: #666; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
   .detail-content { line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
   .detail-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-  @media (max-width: 768px) {
-    .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-  }
+  @media (max-width: 768px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
 </style>
 
 <main>
@@ -142,13 +72,16 @@
           <input type="text" id="post-subtitle">
         </div>
         <div class="form-group">
-          <label>내용 *</label>
-          <textarea id="post-content" required></textarea>
-        </div>
+          <label>내용 (선택)</label>
+          <textarea id="post-content"></textarea> </div>
+        
         <div class="form-group">
-          <label>이미지 URL</label>
-          <input type="url" id="post-image" placeholder="https://">
+          <label>이미지 링크들</label>
+          <div id="image-input-container" class="image-input-list">
+            </div>
+          <button type="button" class="btn-add-img" onclick="addImageInput()">+ 이미지 추가</button>
         </div>
+
         <div class="form-buttons">
           <button type="button" class="btn btn-cancel" onclick="closeWriteModal()">취소</button>
           <button type="submit" class="btn btn-submit">등록</button>
@@ -161,15 +94,14 @@
     <div class="modal-content" style="max-width: 800px;">
       <div class="modal-header">
         <div>
-            <div id="detail-title"></div>
+            <div id="detail-title" style="font-size: 18pt; font-weight: bold;"></div>
             <div id="display-subtitle" class="detail-subtitle"></div>
         </div>
         <button class="close-btn" onclick="closeDetailModal()">✕</button>
       </div>
       <div id="detail-body">
         <div class="display-content">
-          <img id="display-image" src="" class="detail-image" style="display:none;">
-          <div class="detail-text-area">
+          <div id="display-image-list" class="detail-image-list"></div> <div class="detail-text-area">
             <div id="display-content" class="detail-content"></div>
           </div>
         </div>
@@ -207,12 +139,17 @@
   let editingPostId = null;
   let allPosts = {};
 
-  async function getUserRole(userId) {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      return userDoc.exists() ? userDoc.data().role : 'user';
-    } catch { return 'user'; }
-  }
+  // 이미지 입력창 관리
+  window.addImageInput = (value = '') => {
+    const container = document.getElementById('image-input-container');
+    const div = document.createElement('div');
+    div.className = 'image-input-item';
+    div.innerHTML = `
+      <input type="url" class="post-image-url" placeholder="https://" value="${value}">
+      <button type="button" class="btn-remove-img" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+  };
 
   onAuthStateChanged(auth, async (user) => {
     const writeBtn = document.getElementById('write-btn');
@@ -227,13 +164,21 @@
     loadPosts();
   });
 
+  async function getUserRole(userId) {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      return userDoc.exists() ? userDoc.data().role : 'user';
+    } catch { return 'user'; }
+  }
+
   window.openWriteModal = () => {
     editingPostId = null;
     document.getElementById('modal-title').textContent = '새 글쓰기';
     document.getElementById('post-title').value = '';
     document.getElementById('post-subtitle').value = '';
     document.getElementById('post-content').value = '';
-    document.getElementById('post-image').value = '';
+    document.getElementById('image-input-container').innerHTML = '';
+    addImageInput(); // 기본 입력창 하나 추가
     document.getElementById('write-modal').classList.add('active');
   };
 
@@ -246,18 +191,33 @@
     document.getElementById('post-title').value = post.title || '';
     document.getElementById('post-subtitle').value = post.subtitle || '';
     document.getElementById('post-content').value = post.content || '';
-    document.getElementById('post-image').value = post.imageUrl || '';
+    
+    const container = document.getElementById('image-input-container');
+    container.innerHTML = '';
+    if (post.imageUrls && post.imageUrls.length > 0) {
+      post.imageUrls.forEach(url => addImageInput(url));
+    } else if (post.imageUrl) { // 하위 호환성 (기존 단일 이미지)
+      addImageInput(post.imageUrl);
+    } else {
+      addImageInput();
+    }
+    
     closeDetailModal();
     document.getElementById('write-modal').classList.add('active');
   };
 
   window.handleSavePost = async (event) => {
     event.preventDefault();
+    
+    // 다중 이미지 URL 수집
+    const urlInputs = document.querySelectorAll('.post-image-url');
+    const imageUrls = Array.from(urlInputs).map(input => input.value).filter(url => url.trim() !== '');
+
     const data = {
       title: document.getElementById('post-title').value,
       subtitle: document.getElementById('post-subtitle').value,
       content: document.getElementById('post-content').value,
-      imageUrl: document.getElementById('post-image').value,
+      imageUrls: imageUrls,
       updatedAt: serverTimestamp()
     };
 
@@ -272,7 +232,6 @@
   };
 
   window.loadPosts = () => {
-    // imgbackup_posts 컬렉션 사용
     const q = query(collection(db, 'imgbackup_posts'), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
       const gallery = document.getElementById('gallery');
@@ -291,8 +250,10 @@
         card.querySelector('.main-subtitle').textContent = post.subtitle || '';
 
         const thumb = card.querySelector('.post-thumbnail');
-        if (post.imageUrl) {
-          thumb.innerHTML = `<img src="${post.imageUrl}" onerror="this.src='https://via.placeholder.com/150'">`;
+        // 첫 번째 이미지를 썸네일로 사용
+        const firstImg = (post.imageUrls && post.imageUrls[0]) || post.imageUrl;
+        if (firstImg) {
+          thumb.innerHTML = `<img src="${firstImg}" onerror="this.src='https://via.placeholder.com/150'">`;
         } else {
           thumb.innerHTML = `<div class="post-thumbnail-placeholder">NO IMAGE</div>`;
         }
@@ -309,14 +270,19 @@
 
     document.getElementById('detail-title').textContent = post.title;
     document.getElementById('display-subtitle').textContent = post.subtitle || '';
-    document.getElementById('display-content').innerHTML = linkify(post.content);
+    document.getElementById('display-content').innerHTML = linkify(post.content || '');
 
-    const img = document.getElementById('display-image');
-    if (post.imageUrl) { 
-      img.src = post.imageUrl; 
-      img.style.display = 'block'; 
-    } else { 
-      img.style.display = 'none'; 
+    const imgContainer = document.getElementById('display-image-list');
+    imgContainer.innerHTML = '';
+    
+    const urls = post.imageUrls || (post.imageUrl ? [post.imageUrl] : []);
+    if (urls.length > 0) {
+      urls.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'detail-image';
+        imgContainer.appendChild(img);
+      });
     }
 
     const controls = document.getElementById('admin-controls');
