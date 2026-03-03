@@ -526,9 +526,14 @@ main{
   text-decoration: none !important; /* 밑줄 제거 */
   border: var(--button-border);
   padding: 0px 5px;
-  background: #fff;
+  background: var(--button-background-color);
+  color: var(--button-text-color);
+  font-size: var(--btn-font-size);
   border-radius: 5px;
+}
 
+.post-link:hover{
+  background: var(--button-background-color-hover);
 }
 
 /* 게시글 모달 */
