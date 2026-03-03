@@ -70,12 +70,12 @@
   --font: 'Pretendard-Regular', sans-serif;
   --font-title: 'Paperozi', sans-serif;
     
-    --color-light: #f0f0f0;
-    --color-middle: #999;
-    --color-dark:#333;
-    --color-darkest:#1c1c1c;
+    --color-light: #cfd187;
+    --color-middle: #78ab57;
+    --color-dark: #5e7047;
+    --color-darkest:#694d36;
     
-    --color-dark-black: #1c1c1c;
+    --color-dark-black: #261c17;
     --color-light-gray:#f0f0f0;
     
     
@@ -83,29 +83,33 @@
   --background-color: #eee;
   --container-background-color: var(--color-light-gray);
   --container-border-radius: 5px;
-  --basic-text-color:#000;
+    --basic-text-color:#000;
+    --white-text-color:#fff;
 
   --menu-text-color: black;
   --menu-text-hover-color: rgba(0,0,0,0.5);
 
   --scrollbar-width: 10px;
   --scrollbar-radius: 8px;
-  --scrollbar-background-color: rgba(0,0,0,0.3);
-  --scrollbar-color: var(--color-dark-black);
+  --scrollbar-background-color: var(--color-light);
+  --scrollbar-color: var(--color-dark);
 
   --post-card-border-radius: 12px;
   --post-card-border: 2px solid var(--color-dark-black);
+    
+    --post-item-background-color:#fff;
 
   --gallery-card-border-radius: 12px;
   --gallery-card-border: 2px solid var(--color-dark-black);
+    
+    --modal-back-color:rgba(0, 0, 0, 0.5);
 
-  --button-background-color: white;
-  --button-text-color: black;
+  --button-background-color: var(--color-light-gray);
+  --button-text-color: var(--basic-text-color);
   --button-border-radius: 12px;
   --button-border: 2px solid var(--color-dark-black);
   --btn-font-size:9pt;
-
-  --button-background-color-hover: #eee;
+  --button-background-color-hover: var(--color-middle);
   --button-padding-basic: 3px 6px;
 }
 
@@ -153,7 +157,7 @@ a{
     border: var(--post-card-border);
     border-radius: var(--container-border-radius);
     overflow: hidden;
-    box-shadow: 5px 5px;
+    box-shadow: 5px 5px 0 var(--color-darkest);
 }
 
 main{
@@ -173,6 +177,7 @@ main{
 #container{
   position: relative;
   height: 100%;
+    background: var(--color-light);
 }
 
 #content{
