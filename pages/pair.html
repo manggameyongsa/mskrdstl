@@ -74,14 +74,14 @@
     font-weight: bold;
     font-size: 16pt;
     margin-bottom: 4px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 3px var(--modal-back-color);
   }
 
   .main-subtitle {
     display: block;
     font-size: 10.5pt;
     opacity: 0.9;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 2px var(--modal-back-color);
   }
 
   /* 모달 공통 스타일 */
@@ -91,7 +91,7 @@
     z-index: 1000;
     left: 0; top: 0;
     width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--modal-back-color);
   }
 
   .modal.active { display: flex; justify-content: center; align-items: center; }
@@ -113,7 +113,7 @@
   /* 상세 보기 레이아웃 */
   .display-content {  }
   .detail-text-area { margin-top: 10px; }
-  .detail-subtitle { font-size: 12pt; color: #666; margin-bottom: 15px; font-style: italic; }
+  .detail-subtitle { font-size: 12pt; color: var(--color-dark); margin-bottom: 15px; font-style: italic; }
   .detail-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; }
 
   @media (max-width: 600px) {
