@@ -329,6 +329,9 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+    
+// 이 게시판이 사용할 데이터베이스 이름
+const DB_NAME = 'oc_posts';
 
   let currentUser = null;
   let editingPostId = null;
@@ -396,16 +399,16 @@
 
     try {
       if (editingPostId) {
-        await updateDoc(doc(db, 'oc_posts', editingPostId), data);
+        await updateDoc(doc(db, DB_NAME, editingPostId), data);
       } else {
-        await addDoc(collection(db, 'oc_posts'), { ...data, createdAt: serverTimestamp(), userId: currentUser.uid });
+        await addDoc(collection(db, DB_NAME), { ...data, createdAt: serverTimestamp(), userId: currentUser.uid });
       }
       closeWriteModal();
     } catch (e) { alert(e.message); }
   };
 
   window.loadPosts = () => {
-    const q = query(collection(db, 'oc_posts'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, DB_NAME), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
       const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
@@ -486,7 +489,7 @@ window.openDetailModal = (postId) => {
 
   window.deletePost = async (id) => {
     if (confirm('삭제하시겠습니까?')) {
-      await deleteDoc(doc(db, 'oc_posts', id));
+      await deleteDoc(doc(db, DB_NAME, id));
       closeDetailModal();
     }
   };
