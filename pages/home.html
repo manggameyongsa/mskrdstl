@@ -142,6 +142,8 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  const DB_NAME = 'home_posts';
+
   let currentUser = null;
   let editingPostId = null;
   let allPosts = {};
@@ -201,16 +203,16 @@
 
     try {
       if (editingPostId) {
-        await updateDoc(doc(db, 'home_posts', editingPostId), data);
+        await updateDoc(doc(db, DB_NAME, editingPostId), data);
       } else {
-        await addDoc(collection(db, 'home_posts'), { ...data, createdAt: serverTimestamp(), userId: currentUser.uid });
+        await addDoc(collection(db, DB_NAME), { ...data, createdAt: serverTimestamp(), userId: currentUser.uid });
       }
       closeWriteModal();
     } catch (e) { alert(e.message); }
   };
 
   window.loadPosts = () => {
-    const q = query(collection(db, 'home_posts'), orderBy('createdAt', 'asc'));
+    const q = query(collection(db, DB_NAME), orderBy('createdAt', 'asc'));
     onSnapshot(q, (snapshot) => {
       const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
@@ -252,7 +254,7 @@
 
   window.deletePost = async (id) => {
     if (confirm('삭제하시겠습니까?')) {
-      await deleteDoc(doc(db, 'home_posts', id));
+      await deleteDoc(doc(db, DB_NAME, id));
     }
   };
 
