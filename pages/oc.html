@@ -32,17 +32,6 @@
     align-items: center;
   }
 
-  .modal-content {
-    background-color: #f0f0f0;
-    border: 3px solid #333;
-    padding: 30px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  }
-
   .modal-header {
    text-align: right;
   }
@@ -53,23 +42,10 @@
   }
 
 
-  .form-group {
-    margin-bottom: 20px;
-  }
-
   .form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-  }
-
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #333;
-    font-family: inherit;
-    box-sizing: border-box;
   }
 
   .form-group textarea {
@@ -126,7 +102,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-light) 0%, var(--color-middle) 100%);
     color: white;
     font-size: 48px;
     font-weight: bold;
@@ -168,17 +144,6 @@
     text-align: right;
   }
 
-  /* 상세보기 모달 스타일 */
-  .detail-modal-content {
-    background-color: #f0f0f0;
-    border: 3px solid #333;
-    padding: 12px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
   .display-content{
     display: flex;
     gap: 10px;
@@ -189,15 +154,10 @@
   }
 
   .detail-image {
-    width: 100%;
     max-width: 280px;
     margin: auto;
   }
 
-  #detail-title{
-    font-size: 16pt;
-    font-weight: bold;
-  }
 
   .detail-subtitle {
     font-size: 16px;
@@ -214,20 +174,7 @@
   }
 
   .detail-content {
-    font-size: 15px;
-    line-height: 1.6;
     margin-bottom: 20px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .detail-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    border-top: 1px solid #ddd;
-    padding-top: 20px;
-    flex-wrap: wrap;
   }
 
   .empty-message {
