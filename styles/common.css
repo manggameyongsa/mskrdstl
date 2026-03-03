@@ -181,6 +181,7 @@ main{
   background-image: var(--background-img);
   background-position: center, top;
   background-repeat: no-repeat;
+  background-size: cover;
 }
 
 #content{
