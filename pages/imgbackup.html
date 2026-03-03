@@ -27,7 +27,14 @@
     align-items: center;
   }
 
-  .modal-header { text-align: right; margin-bottom: 15px; }
+  .modal-header { 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--post-card-border);
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+                }
   .modal-header h2 { margin: 0; font-family: var(--font-title); }
 
   .form-group { margin-bottom: 15px; }
@@ -153,8 +160,10 @@
   <div id="detail-modal" class="modal">
     <div class="modal-content" style="max-width: 800px;">
       <div class="modal-header">
+        <div>
             <div id="detail-title"></div>
             <div id="display-subtitle" class="detail-subtitle"></div>
+        </div>
         <button class="close-btn" onclick="closeDetailModal()">✕</button>
       </div>
       <div id="detail-body">
