@@ -178,6 +178,8 @@
 <script type="module">
   // js에서 설정을 가져옵니다. (경로 주의)
   import { firebaseConfig } from "../script/firebase-config.js";
+  // 공통 기능 가져오기
+  import { getUserRole, linkify } from "../script/auth-utils.js";
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -187,19 +189,12 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // 이 게시판이 사용할 데이터베이스 이름 딱 정하기!
+  // 이 게시판이 사용할 데이터베이스 이름
  const DB_NAME = 'text_posts';
 
   let currentUser = null;
   let editingPostId = null;
   let allPosts = {};
-
-  async function getUserRole(userId) {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      return userDoc.exists() ? userDoc.data().role : 'user';
-    } catch { return 'user'; }
-  }
 
   onAuthStateChanged(auth, async (user) => {
     const writeBtn = document.getElementById('write-btn');
@@ -323,10 +318,6 @@
       closeDetailModal();
     }
   };
-
-  function linkify(text) {
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="post-link">LINK</a>');
-  }
 
   // 모달 바깥쪽(배경) 클릭 시 닫기
   window.onclick = (event) => {
