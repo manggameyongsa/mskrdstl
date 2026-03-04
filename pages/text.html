@@ -199,7 +199,8 @@
   onAuthStateChanged(auth, async (user) => {
     const writeBtn = document.getElementById('write-btn');
     if (user) {
-      const role = await getUserRole(user.uid);
+      // [수정] db를 첫 번째 인자로 넣어줘야 합니다!
+      const role = await getUserRole(db, user.uid);
       currentUser = { uid: user.uid, role: role };
       writeBtn.style.display = role === 'admin' ? 'block' : 'none';
     } else {
