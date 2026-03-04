@@ -202,7 +202,7 @@
   // js에서 설정을 가져옵니다. (경로 주의)
   import { firebaseConfig } from "../script/firebase-config.js";
   // 공통 기능 가져오기
-  import { getUserRole, linkify } from "../script/auth-utils.js";
+  import { getUserRole, linkify, setupModalOutsideClick } from "../script/auth-utils.js";
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -342,18 +342,7 @@
   };
 
     // 모달 바깥쪽(배경) 클릭 시 닫기
-  window.onclick = (event) => {
-    const writeModal = document.getElementById('write-modal');
-    const detailModal = document.getElementById('detail-modal');
-
-    // 클릭된 곳(event.target)이 모달 배경(검은 부분)과 같다면 닫기 함수 실행
-    if (event.target === writeModal) {
-      closeWriteModal();
-    }
-    if (event.target === detailModal) {
-      closeDetailModal();
-    }
-  };
+  setupModalOutsideClick('write-modal', 'detail-modal', window.closeWriteModal, window.closeDetailModal);
 
   document.getElementById('write-btn').onclick = openWriteModal;
 </script>
