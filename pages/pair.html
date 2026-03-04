@@ -341,10 +341,6 @@
     }
   };
 
-  function linkify(text) {
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="post-link">LINK</a>');
-  }
-
     // 모달 바깥쪽(배경) 클릭 시 닫기
   window.onclick = (event) => {
     const writeModal = document.getElementById('write-modal');
