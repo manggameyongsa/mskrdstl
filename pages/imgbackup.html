@@ -43,6 +43,10 @@
     <h1>Image Backup</h1>
     <button id="write-btn" class="write-btn" style="display:none;">글쓰기</button>
   </div>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="제목, 부제목, 내용 검색..." >
+      <button id="search-btn" class="btn">검색</button>
+    </div>
 
   <template id="post-card-template">
     <div class="post-card">
@@ -223,38 +227,51 @@
     } catch (e) { alert(e.message); }
   };
 
+// 1. 화면에 글 목록을 그려주는 전용 함수 (검색 결과도 이걸로 그려요!)
+  function renderPostList(posts) {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = ''; // 일단 화면을 깨끗이 비웁니다.
+    const template = document.getElementById('post-card-template');
+
+    posts.forEach((post) => {
+      const card = template.content.cloneNode(true);
+      const cardDiv = card.querySelector('.post-card');
+      
+      card.querySelector('.main-title').textContent = post.title;
+      card.querySelector('.main-subtitle').textContent = post.subtitle || '';
+
+      const thumb = card.querySelector('.post-thumbnail');
+      // 이미지가 있으면 보여주고, 없으면 첫 글자를 보여줍니다.
+      if (post.imageUrl) {
+        thumb.innerHTML = `<img src="${post.imageUrl}" onerror="this.src='https://via.placeholder.com/150'">`;
+      } else {
+        const initials = (post.title || 'Text').charAt(0).toUpperCase();
+        thumb.innerHTML = `<div class="post-thumbnail-placeholder">${initials}</div>`;
+      }
+
+      cardDiv.onclick = () => openDetailModal(post.id);
+      gallery.appendChild(cardDiv);
+    });
+  }
+
+  // 2. 파이어베이스에서 데이터를 실시간으로 가져오는 함수
   window.loadPosts = () => {
     const q = query(collection(db, DB_NAME), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
-      const gallery = document.getElementById('gallery');
-      gallery.innerHTML = '';
-      allPosts = {};
-      const template = document.getElementById('post-card-template');
-
+      allPosts = {}; // 전체 데이터를 담을 변수 초기화
       snapshot.forEach((docSnap) => {
         const post = { ...docSnap.data(), id: docSnap.id };
         allPosts[post.id] = post;
-
-        const card = template.content.cloneNode(true);
-        const cardDiv = card.querySelector('.post-card');
-        
-        card.querySelector('.main-title').textContent = post.title;
-        card.querySelector('.main-subtitle').textContent = post.subtitle || '';
-
-        const thumb = card.querySelector('.post-thumbnail');
-        // 첫 번째 이미지를 썸네일로 사용
-        const firstImg = (post.imageUrls && post.imageUrls[0]) || post.imageUrl;
-        if (firstImg) {
-          thumb.innerHTML = `<img src="${firstImg}" onerror="this.src='https://via.placeholder.com/150'">`;
-        } else {
-          thumb.innerHTML = `<div class="post-thumbnail-placeholder">NO IMAGE</div>`;
-        }
-
-        cardDiv.onclick = () => openDetailModal(post.id);
-        gallery.appendChild(card);
       });
+      
+      // [중요] 데이터를 다 가져오면 화면에 전체 목록을 그립니다.
+      renderPostList(Object.values(allPosts));
+      
+      // [추가] 이제 검색 기능을 연결합니다. (외부 함수 호출)
+      setupSearch(allPosts, renderPostList);
     });
   };
+  
 
   window.openDetailModal = (postId) => {
     const post = allPosts[postId];
