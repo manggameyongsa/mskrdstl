@@ -655,6 +655,7 @@ body{
 }
   .menu nav{
     display: flex;
+    flex-wrap: wrap;
   }
 
   .menu-btn{
