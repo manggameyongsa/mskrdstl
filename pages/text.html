@@ -260,9 +260,9 @@
 
   
 // 1. 화면에 글 목록을 그려주는 전용 함수 (검색 결과도 이걸로 그려요!)
-  function renderPostList(posts) {
+function renderPostList(posts) {
     const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; // 일단 화면을 깨끗이 비웁니다.
+    gallery.innerHTML = ''; 
     const template = document.getElementById('post-card-template');
 
     posts.forEach((post) => {
@@ -273,11 +273,16 @@
       card.querySelector('.main-subtitle').textContent = post.subtitle || '';
 
       const thumb = card.querySelector('.post-thumbnail');
-      // 이미지가 있으면 보여주고, 없으면 첫 글자를 보여줍니다.
-      if (post.imageUrl) {
-        thumb.innerHTML = `<img src="${post.imageUrl}" onerror="this.src='https://via.placeholder.com/150'">`;
+
+      // [수정된 부분] 단일 이미지(imageUrl) 또는 다중 이미지의 첫 번째(imageUrls[0])를 확인합니다.
+      const displayImg = post.imageUrl || (post.imageUrls && post.imageUrls[0]);
+
+      if (displayImg) {
+        // 이미지가 있으면 이미지 태그 생성
+        thumb.innerHTML = `<img src="${displayImg}" onerror="this.src='https://via.placeholder.com/150'">`;
       } else {
-        const initials = (post.title || 'Text').charAt(0).toUpperCase();
+        // 이미지가 아예 없으면 제목의 첫 글자를 썸네일로 표시
+        const initials = (post.title || 'Post').charAt(0).toUpperCase();
         thumb.innerHTML = `<div class="post-thumbnail-placeholder">${initials}</div>`;
       }
 
