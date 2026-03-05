@@ -475,6 +475,10 @@ main{
     font-size: var(--btn-font-size);
   }
 
+   .btn:hover{
+    background: var(--button-background-color-hover);
+    }
+
   .btn-submit {
     background: var(--button-background-color);
     color: var(--button-text-color);
