@@ -220,17 +220,29 @@ main{
   margin-bottom: 10px;
 }
 
+/* PC 메뉴 설정 */
+.menu-toggle {
+  display: none; 
+  position: absolute; /* header 안에서 배치 */
+  top: 15px;
+  right: 15px;
+  z-index: 1001;
+  background: var(--color-dark, #333);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 4px;
+}
+
 .menu{
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   padding: 30px 0px;
-  position: relative;
-  flex: 1;
-  align-self: stretch;
   width: 100%;
-  flex-grow: 1;
+  transition: all 0.3s ease; /* 부드러운 움직임 */
 }
 
 .menu-btn{
@@ -651,17 +663,30 @@ body{
    }
     
 .menu{
-  padding: 12px;
+  display: none; 
+    flex-direction: column;
+    padding: 15px 0;
+    background-color: var(--color-black, #000);
+    width: 100%;
 }
+    
+  /* JS로 .active 클래스가 붙었을 때만 보임 */
+  .menu.active {
+    display: flex;
+  }
+    
   .menu nav{
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px; 
-  justify-content: center;
+    flex-direction: column; /* 모바일에서도 세로로 깔끔하게 나열 */
+    align-items: center;
+    width: 100%;
+    gap: 5px;
   }
 
   .menu-btn{
-    margin: 0 12px; 
+    margin: 8px 0;
+    width: 100%;
+    text-align: center;
   }
 
   }
