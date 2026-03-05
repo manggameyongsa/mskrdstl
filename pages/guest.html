@@ -36,7 +36,8 @@
       </div>
       <div class="guest-content"></div>
       <div class="admin-controls" style="display:none; margin-top: 10px; justify-content: flex-end; gap: 10px;">
-        <button class="btn btn-delete" style="padding: 5px 10px; font-size: 9pt;">삭제</button>
+        <button class="btn btn-edit">수정</button>
+        <button class="btn btn-delete">삭제</button>
       </div>
     </div>
   </template>
@@ -66,7 +67,7 @@
   import { getUserRole, linkify, setupModalOutsideClick, setupSearch } from "../script/auth-utils.js";
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
   const app = initializeApp(firebaseConfig);
@@ -127,7 +128,7 @@
     } catch (e) { alert(e.message); }
   };
 
-  // 4. 화면에 글 목록 그리기
+// 4. 화면에 글 목록 그리기 (수정 버튼 로직 포함)
   function renderGuestList(guests) {
     const list = document.getElementById('guestbook-list');
     list.innerHTML = '';
@@ -136,7 +137,6 @@
     guests.forEach((item) => {
       const el = template.content.cloneNode(true);
       
-      // 저장된 닉네임이 있으면 닉네임을, 없으면 예전 방식인 이메일을 보여줍니다.
       el.querySelector('.author-name').textContent = item.nickname || item.userEmail || '익명';
       el.querySelector('.guest-content').innerHTML = linkify(item.content);
       
@@ -145,11 +145,16 @@
         el.querySelector('.post-date').textContent = date.toLocaleDateString();
       }
 
-      // 본인 글이거나 관리자일 때만 삭제 버튼 노출
+      // 관리자이거나 본인 글인 경우 수정/삭제 노출
       if (currentUser && (currentUser.role === 'admin' || currentUser.uid === item.userId)) {
         const controls = el.querySelector('.admin-controls');
         controls.style.display = 'flex';
+        
+        // 삭제 버튼 연결
         el.querySelector('.btn-delete').onclick = () => deleteGuest(item.id);
+        
+        // [추가] 수정 버튼 연결
+        el.querySelector('.btn-edit').onclick = () => openEditModal(item);
       }
 
       list.appendChild(el);
@@ -176,6 +181,51 @@
     if (confirm('이 방명록을 삭제하시겠습니까?')) {
       await deleteDoc(doc(db, DB_NAME, id));
     }
+  };
+
+  // [추가] 수정용 변수 (어떤 글을 수정 중인지 기억함)
+  let editingId = null;
+
+  // [추가] 수정 모달 열기
+  window.openEditModal = (item) => {
+    editingId = item.id; // 수정할 글의 ID 저장
+    document.getElementById('guest-content').value = item.content; // 기존 내용 채우기
+    document.getElementById('write-modal').querySelector('h2').textContent = '방명록 수정';
+    document.getElementById('write-modal').classList.add('active');
+    
+    // 등록 버튼의 이벤트를 수정용으로 임시 교체하기 위해 form의 onsubmit을 변경
+    const form = document.querySelector('#write-modal form');
+    form.onsubmit = handleUpdateGuest;
+  };
+
+  // [추가] 실제 수정 처리 (DB 업데이트)
+window.handleUpdateGuest = async (event) => {
+    event.preventDefault();
+    if(!editingId) return;
+
+    const newContent = document.getElementById('guest-content').value;
+    
+    try {
+      // 위에서 updateDoc을 import 했으므로 바로 사용 가능합니다.
+      await updateDoc(doc(db, DB_NAME, editingId), {
+        content: newContent,
+        updatedAt: serverTimestamp() 
+      });
+      
+      alert('수정되었습니다.');
+      closeWriteModal();
+      // location.reload() 대신 onSnapshot이 있으니 그냥 두셔도 되지만, 
+      // 상태 초기화를 위해 두는 것도 방법입니다.
+    } catch (e) { alert("수정 실패: " + e.message); }
+  };
+
+  // 기존 closeWriteModal 함수도 수정 (글쓰기/수정 상태 초기화용)
+  const originalCloseModal = window.closeWriteModal;
+  window.closeWriteModal = () => {
+    editingId = null;
+    document.getElementById('write-modal').querySelector('h2').textContent = '방명록 작성';
+    document.querySelector('#write-modal form').onsubmit = handleSaveGuest;
+    originalCloseModal();
   };
 
   // 7. 초기 설정
