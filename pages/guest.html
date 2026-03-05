@@ -76,6 +76,7 @@
   const DB_NAME = 'guestbook'; // 방명록 전용 컬렉션
 
   let currentUser = null;
+  let allPosts = {};
 
   onAuthStateChanged(auth, async (user) => {
     const writeBtn = document.getElementById('write-btn');
