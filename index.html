@@ -188,7 +188,7 @@
 function updateContentHeight() {
   const header = document.querySelector('header');
   if (header) {
-    const headerHeight = header.offsetHeight; // 헤더의 실제 높이를 픽셀로 가져옴
+    const headerHeight = header.offsetHeight + 10; // 헤더의 실제 높이를 픽셀로 가져옴
     // body 태그에 --header-height라는 변수를 전달함
     document.body.style.setProperty('--header-height', headerHeight + 'px');
   }
