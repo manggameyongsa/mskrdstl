@@ -602,6 +602,24 @@ main{
       padding-top: 15px; 
     }
 
+/*검색창*/
+.search-container{
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+#search-input{
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 260px;
+}
+
+#search-btn{}
+
 
   @media (max-width: 640px) {
 body{
