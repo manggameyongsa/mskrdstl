@@ -125,7 +125,7 @@
   // js에서 설정을 가져옵니다. (경로 주의)
   import { firebaseConfig } from "../script/firebase-config.js";
   // 공통 기능 가져오기
-  import { getUserRole, linkify, setupModalOutsideClick } from "../script/auth-utils.js";
+  import { getUserRole, linkify, setupModalOutsideClick, setupSearch } from "../script/auth-utils.js";
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
