@@ -18,9 +18,9 @@
         <button id="login-btn" class="login-btn" style="display:none;">로그인</button>
         <button id="logout-btn" class="logout-btn" style="display:none;">로그아웃</button>
       </div>  
-
+      <button id="menu-toggle" class="menu-toggle">☰</button>
       <div class="menu back-black">
-        <nav>
+        <nav id="main-nav" class="nav-container">
           <p class="menu-btn"><a href="pages/home.html" target="main">Main</a></p>
           <p class="menu-btn"><a href="pages/oc.html" target="main">OC</a></p>
           <p class="menu-btn"><a href="pages/pair.html" target="main">Pair</a></p>
@@ -273,5 +273,37 @@ onAuthStateChanged(auth, async (user) => {
         closeAuthModal();
       }
     };
+
+
+    // 햄버거 메뉴
+    document.addEventListener('DOMContentLoaded', () => {
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuContainer = document.querySelector('.menu'); // .menu 클래스를 찾음
+
+  if (menuToggle && menuContainer) {
+    menuToggle.onclick = () => {
+      // 메뉴 열고 닫기 (active 클래스 토글)
+      menuContainer.classList.toggle('active');
+
+      // 버튼 텍스트 변경 (아이콘 효과)
+      if (menuContainer.classList.contains('active')) {
+        menuToggle.textContent = '✕'; // 닫기 모양
+      } else {
+        menuToggle.textContent = '☰'; // 메뉴 모양
+      }
+    };
+
+    // 메뉴 안의 링크(a태그)를 클릭하면 메뉴창이 자동으로 닫히게 설정
+    const menuLinks = menuContainer.querySelectorAll('a');
+    menuLinks.forEach(link => {
+      link.onclick = () => {
+        if (window.innerWidth <= 640) {
+          menuContainer.classList.remove('active');
+          menuToggle.textContent = '☰';
+        }
+      };
+    });
+  }
+});
   </script>
 </html>
