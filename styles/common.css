@@ -661,6 +661,10 @@ body{
     position: relative;
     display: block;
    }
+
+  .menu-toggle {
+    display: block ; 
+  }
     
 .menu{
   display: none; 
