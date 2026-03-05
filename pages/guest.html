@@ -73,17 +73,25 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  const DB_NAME = 'guestbook'; // 방명록 전용 컬렉션
+  const DB_NAME = 'guestbook'; 
 
   let currentUser = null;
   let allPosts = {};
 
+  // 1. 로그인 상태 확인 및 유저 정보 저장
   onAuthStateChanged(auth, async (user) => {
     const writeBtn = document.getElementById('write-btn');
     if (user) {
-      // [중요] 로그인만 되어 있으면 role 상관없이 글쓰기 버튼 노출
       const role = await getUserRole(db, user.uid);
-      currentUser = { uid: user.uid, role: role, email: user.email };
+      
+      // [중요] 여기서 displayName(닉네임)을 챙겨둬야 글 쓸 때 이름이 나옵니다.
+      currentUser = { 
+        uid: user.uid, 
+        role: role, 
+        email: user.email,
+        displayName: user.displayName 
+      };
+      
       writeBtn.style.display = 'block';
     } else {
       currentUser = null;
@@ -92,6 +100,7 @@
     loadGuests();
   });
 
+  // 2. 글쓰기 모달 제어
   window.openWriteModal = () => {
     document.getElementById('guest-content').value = '';
     document.getElementById('write-modal').classList.add('active');
@@ -99,14 +108,15 @@
 
   window.closeWriteModal = () => document.getElementById('write-modal').classList.remove('active');
 
-window.handleSaveGuest = async (event) => {
+  // 3. 방명록 저장 기능
+  window.handleSaveGuest = async (event) => {
     event.preventDefault();
     if(!currentUser) return alert("로그인이 필요합니다.");
 
     const data = {
       content: document.getElementById('guest-content').value,
       userId: currentUser.uid,
-      // [수정] 이메일 대신 로그인한 유저의 닉네임을 저장합니다.
+      // [핵심] 로그인한 유저의 닉네임을 사용합니다. 없으면 '익명'
       nickname: currentUser.displayName || '익명', 
       createdAt: serverTimestamp()
     };
@@ -117,8 +127,8 @@ window.handleSaveGuest = async (event) => {
     } catch (e) { alert(e.message); }
   };
 
-// [추가] 1. 화면을 그리는 기능을 따로 떼어낸 가방입니다.
-function renderGuestList(guests) {
+  // 4. 화면에 글 목록 그리기
+  function renderGuestList(guests) {
     const list = document.getElementById('guestbook-list');
     list.innerHTML = '';
     const template = document.getElementById('guest-template');
@@ -126,10 +136,8 @@ function renderGuestList(guests) {
     guests.forEach((item) => {
       const el = template.content.cloneNode(true);
       
-      // [수정] 화면에 이메일 대신 저장된 닉네임을 보여줍니다.
-      // 예전에 쓴 글(이메일만 있는 글)도 보일 수 있게 둘 다 체크합니다.
+      // 저장된 닉네임이 있으면 닉네임을, 없으면 예전 방식인 이메일을 보여줍니다.
       el.querySelector('.author-name').textContent = item.nickname || item.userEmail || '익명';
-      
       el.querySelector('.guest-content').innerHTML = linkify(item.content);
       
       if (item.createdAt) {
@@ -137,6 +145,7 @@ function renderGuestList(guests) {
         el.querySelector('.post-date').textContent = date.toLocaleDateString();
       }
 
+      // 본인 글이거나 관리자일 때만 삭제 버튼 노출
       if (currentUser && (currentUser.role === 'admin' || currentUser.uid === item.userId)) {
         const controls = el.querySelector('.admin-controls');
         controls.style.display = 'flex';
@@ -147,30 +156,29 @@ function renderGuestList(guests) {
     });
   }
 
-  // [수정] 2. 데이터를 가져와서 위에서 만든 가방(renderGuestList)에 던져줍니다.
+  // 5. 데이터 실시간 불러오기
   window.loadGuests = () => {
     const q = query(collection(db, DB_NAME), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
-      allPosts = {}; // 전체 데이터를 담아둘 주머니 초기화
+      allPosts = {}; 
       snapshot.forEach((docSnap) => {
         const post = { ...docSnap.data(), id: docSnap.id };
         allPosts[post.id] = post;
       });
       
-      // [핵심] 가져온 데이터를 화면에 그립니다.
       renderGuestList(Object.values(allPosts));
-      
-      // [핵심] 검색창과 데이터를 연결합니다.
       setupSearch(allPosts, renderGuestList);
     });
   };
 
+  // 6. 삭제 기능
   window.deleteGuest = async (id) => {
     if (confirm('이 방명록을 삭제하시겠습니까?')) {
       await deleteDoc(doc(db, DB_NAME, id));
     }
   };
 
+  // 7. 초기 설정
   setupModalOutsideClick('write-modal', null, window.closeWriteModal, () => {});
   document.getElementById('write-btn').onclick = openWriteModal;
 </script>
