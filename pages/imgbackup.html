@@ -184,7 +184,11 @@ window.openWriteModal = () => {
 
   window.closeWriteModal = () => document.getElementById('write-modal').classList.remove('active');
 
-  window.openEditModal = (postId) => {
+window.openEditModal = (postId) => {
+    // [추가] 모달 내부 스크롤을 맨 위로 초기화
+    const modalContent = document.querySelector('#write-modal .modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
+
     const post = allPosts[postId];
     editingPostId = postId;
     document.getElementById('modal-title').textContent = '글 수정하기';
@@ -196,7 +200,7 @@ window.openWriteModal = () => {
     container.innerHTML = '';
     if (post.imageUrls && post.imageUrls.length > 0) {
       post.imageUrls.forEach(url => addImageInput(url));
-    } else if (post.imageUrl) { // 하위 호환성 (기존 단일 이미지)
+    } else if (post.imageUrl) { 
       addImageInput(post.imageUrl);
     } else {
       addImageInput();
