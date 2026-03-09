@@ -167,14 +167,18 @@
     loadPosts();
   });
 
-  window.openWriteModal = () => {
+window.openWriteModal = () => {
+    // [추가] 모달 내부 스크롤을 맨 위로 초기화
+    const modalContent = document.querySelector('#write-modal .modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
+
     editingPostId = null;
     document.getElementById('modal-title').textContent = '새 글쓰기';
     document.getElementById('post-title').value = '';
     document.getElementById('post-subtitle').value = '';
     document.getElementById('post-content').value = '';
     document.getElementById('image-input-container').innerHTML = '';
-    addImageInput(); // 기본 입력창 하나 추가
+    addImageInput(); 
     document.getElementById('write-modal').classList.add('active');
   };
 
