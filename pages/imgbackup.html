@@ -167,40 +167,32 @@
     loadPosts();
   });
 
-window.openWriteModal = () => {
-    // [추가] 모달 내부 스크롤을 맨 위로 초기화
-    const modalContent = document.querySelector('#write-modal .modal-content');
-    if (modalContent) modalContent.scrollTop = 0;
-
+  window.openWriteModal = () => {
     editingPostId = null;
     document.getElementById('modal-title').textContent = '새 글쓰기';
     document.getElementById('post-title').value = '';
     document.getElementById('post-subtitle').value = '';
     document.getElementById('post-content').value = '';
     document.getElementById('image-input-container').innerHTML = '';
-    addImageInput(); 
+    addImageInput(); // 기본 입력창 하나 추가
     document.getElementById('write-modal').classList.add('active');
   };
 
   window.closeWriteModal = () => document.getElementById('write-modal').classList.remove('active');
 
-window.openEditModal = (postId) => {
-    // [추가] 모달 내부 스크롤을 맨 위로 초기화
-    const modalContent = document.querySelector('#write-modal .modal-content');
-    if (modalContent) modalContent.scrollTop = 0;
-
+  window.openEditModal = (postId) => {
     const post = allPosts[postId];
     editingPostId = postId;
     document.getElementById('modal-title').textContent = '글 수정하기';
     document.getElementById('post-title').value = post.title || '';
     document.getElementById('post-subtitle').value = post.subtitle || '';
     document.getElementById('post-content').value = post.content || '';
-    
+  
     const container = document.getElementById('image-input-container');
     container.innerHTML = '';
     if (post.imageUrls && post.imageUrls.length > 0) {
       post.imageUrls.forEach(url => addImageInput(url));
-    } else if (post.imageUrl) { 
+    } else if (post.imageUrl) { // 하위 호환성 (기존 단일 이미지)
       addImageInput(post.imageUrl);
     } else {
       addImageInput();
