@@ -279,13 +279,10 @@ function renderPostList(posts) {
   
 
 window.openDetailModal = (postId) => {
-    // [추가] 상세 보기 모달 내용이 길 수 있으므로 스크롤을 맨 위로 초기화
-    const modalContent = document.querySelector('#detail-modal .modal-content');
-    if (modalContent) modalContent.scrollTop = 0;
-
     const post = allPosts[postId];
     const isAdmin = currentUser && currentUser.role === 'admin';
 
+    // 1. 데이터 먼저 채우기
     document.getElementById('detail-title').textContent = post.title;
     document.getElementById('display-subtitle').textContent = post.subtitle || '';
     document.getElementById('display-content').innerHTML = linkify(post.content || '');
@@ -310,8 +307,20 @@ window.openDetailModal = (postId) => {
       document.getElementById('delete-btn-placeholder').onclick = () => deletePost(postId);
     }
 
-    document.getElementById('detail-modal').classList.add('active');
-  };
+    // 2. 모달 활성화 (화면에 보이게 함)
+    const detailModal = document.getElementById('detail-modal');
+    detailModal.classList.add('active');
+
+    // 3. [핵심] 모달이 화면에 그려진 직후 스크롤을 맨 위로 고정
+    // 0ms~10ms의 미세한 지연을 주면 브라우저가 렌더링 후 스크롤을 확실히 잡아줍니다.
+    setTimeout(() => {
+        const modalContent = detailModal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.scrollTo(0, 0); // scrollTo를 사용하여 명시적으로 좌표 지정
+            modalContent.scrollTop = 0;   // 이중 확인
+        }
+    }, 10);
+};
 
   window.closeDetailModal = () => document.getElementById('detail-modal').classList.remove('active');
 
