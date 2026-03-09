@@ -286,7 +286,11 @@ function renderPostList(posts) {
   };
   
 
-  window.openDetailModal = (postId) => {
+window.openDetailModal = (postId) => {
+    // [추가] 상세 보기 모달 내용이 길 수 있으므로 스크롤을 맨 위로 초기화
+    const modalContent = document.querySelector('#detail-modal .modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
+
     const post = allPosts[postId];
     const isAdmin = currentUser && currentUser.role === 'admin';
 
