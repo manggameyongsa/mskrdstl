@@ -23,10 +23,19 @@ export function setupModalOutsideClick(writeModalId, detailModalId, closeWriteFn
   };
 }
 
-// 링크 변환 공통 함수 (linkify도 빼두면 좋습니다)
+// 링크 및 인라인 이미지 변환 공통 함수
+// 사용법: 글 본문에 ![설명](이미지URL) 형식으로 이미지를 삽입할 수 있습니다.
 export function linkify(text) {
   if (!text) return '';
-  return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="post-link">LINK</a>');
+
+  // 1단계: 줄바꿈을 보존하기 위해 \n을 임시 토큰으로 변환
+  // 2단계: ![alt](url) → <img> 태그로 변환 (링크보다 먼저 처리해야 URL이 중복 변환되지 않음)
+  // 3단계: 나머지 단독 URL → <a> 태그로 변환
+  return text
+    .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<img src="$2" alt="$1" class="post-inline-img" onerror="this.style.display=\'none\'">')
+    .replace(/(https?:\/\/[^\s<]+)/g,
+      '<a href="$1" target="_blank" rel="noopener noreferrer" class="post-link">LINK</a>');
 }
 
 
