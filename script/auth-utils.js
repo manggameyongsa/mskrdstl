@@ -25,27 +25,33 @@ export function setupModalOutsideClick(writeModalId, detailModalId, closeWriteFn
 
 // 링크 및 인라인 이미지 변환 공통 함수
 // 사용법: 글 본문에 ![설명](이미지URL) 형식으로 이미지를 삽입할 수 있습니다.
+//
+// [버그 수정] 이전 방식(두 번 replace)은 ![](url) → <img src="url"> 변환 후
+// 두 번째 정규식이 <img src="url"> 안의 url까지 <a>링크로 덮어써서 이미지가 깨졌습니다.
+// 수정: 하나의 정규식으로 이미지 패턴과 URL 패턴을 동시에 처리합니다.
 export function linkify(text) {
   if (!text) return '';
 
-  // 1단계: 줄바꿈을 보존하기 위해 \n을 임시 토큰으로 변환
-  // 2단계: ![alt](url) → <img> 태그로 변환 (링크보다 먼저 처리해야 URL이 중복 변환되지 않음)
-  // 3단계: 나머지 단독 URL → <a> 태그로 변환
-  return text
-    .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<img src="$2" alt="$1" class="post-inline-img" onerror="this.style.display=\'none\'">')
-    .replace(/(https?:\/\/[^\s<]+)/g,
-      '<a href="$1" target="_blank" rel="noopener noreferrer" class="post-link">LINK</a>');
+  const combined = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<]+)/g;
+
+  return text.replace(combined, (match, altText, imgUrl, plainUrl) => {
+    if (imgUrl) {
+      // ![alt](url) → 인라인 이미지
+      return '<img src="' + imgUrl + '" alt="' + (altText || '') + '" class="post-inline-img" onerror="this.style.display=\'none\'">';
+    } else {
+      // 단독 URL → 링크
+      return '<a href="' + plainUrl + '" target="_blank" rel="noopener noreferrer" class="post-link">LINK</a>';
+    }
+  });
 }
 
 
 // 검색 기능 공통 함수
-// script/auth-utils.js 에 있는 setupSearch 함수
 export function setupSearch(allPosts, renderFn) {
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
 
-  if (!searchInput || !searchBtn) return; // 요소가 없으면 실행 안 함
+  if (!searchInput || !searchBtn) return;
 
   const handleSearch = () => {
     const keyword = searchInput.value.toLowerCase().trim();
@@ -57,7 +63,6 @@ export function setupSearch(allPosts, renderFn) {
     }
 
     const filtered = postsArray.filter(post => {
-      // 일반 게시판 항목(title, subtitle) + 방명록 항목(userEmail) 모두 체크
       const title = (post.title || '').toLowerCase();
       const subtitle = (post.subtitle || '').toLowerCase();
       const content = (post.content || '').toLowerCase();
