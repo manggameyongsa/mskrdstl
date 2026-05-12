@@ -141,6 +141,7 @@
         <div class="form-group">
           <label>내용 *</label>
           <textarea id="post-content" required></textarea>
+          <small style="color: #888; display: block; margin-top: 5px;">💡 본문 중간에 이미지를 넣으려면 <code>![설명](이미지URL)</code> 형식으로 입력하세요.</small>
         </div>
         <div class="form-group">
           <label>이미지 URL</label>
@@ -165,7 +166,7 @@
       <div class="display-content">
         <img id="display-image" src="" class="detail-image" style="display:none;">
         <div class="detail-text-area">
-          <div id="display-content" class="detail-content"></div>
+          <div id="post-body-content" class="detail-content"></div>
         </div>
       </div>
       <div class="detail-buttons">
@@ -317,7 +318,7 @@ function renderPostList(posts) {
     document.getElementById('detail-title').textContent = post.title;
     document.getElementById('display-subtitle').textContent = post.subtitle || '';
 
-    const contentArea = document.getElementById('display-content');
+    const contentArea = document.getElementById('post-body-content');
     contentArea.innerHTML = linkify(post.content);
 
     const img = document.getElementById('display-image');
