@@ -116,6 +116,7 @@
         <div class="form-group">
           <label>내용 *</label>
           <textarea id="post-content" required style="min-height: 200px;"></textarea>
+          <small style="color: #888; display: block; margin-top: 5px;">💡 본문 중간에 이미지를 넣으려면 <code>![설명](이미지URL)</code> 형식으로 입력하세요.</small>
         </div>
         <div class="form-group">
           <label>이미지 URL</label>
@@ -134,7 +135,7 @@
   // js에서 설정을 가져옵니다. (경로 주의)
   import { firebaseConfig } from "../script/firebase-config.js";
   // 공통 기능 가져오기
-  import { getUserRole, linkify, setupModalOutsideClick } from "../script/auth-utils.js";
+  import { getUserRole, linkify } from "../script/auth-utils.js";
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -254,7 +255,10 @@
   };
 
   // 모달 바깥쪽(배경) 클릭 시 닫기
-  setupModalOutsideClick('write-modal', 'detail-modal', window.closeWriteModal, window.closeDetailModal);
+  window.onclick = (event) => {
+    const writeModal = document.getElementById('write-modal');
+    if (event.target === writeModal) closeWriteModal();
+  };
 
   document.getElementById('write-btn').onclick = openWriteModal;
 </script>
