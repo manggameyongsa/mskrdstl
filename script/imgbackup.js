@@ -5,7 +5,7 @@ const imgList = document.getElementById('img-list');
 
 let allPosts = [];
 let currentPage = 1;
-const itemsPerPage = 20; // 한 페이지당 20개
+const itemsPerPage = 9; // 한 페이지당 9개
 
 function getMaxPageButtons() {
   return window.innerWidth < 768 ? 5 : 10;
