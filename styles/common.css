@@ -706,3 +706,33 @@ body{
   border-radius: 4px;
   box-sizing: border-box;
 }
+
+
+/* 페이지네이션 스타일 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.pagination-container button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination-container button.active {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+  border-color: #007bff;
+}
+
+.pagination-container button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
