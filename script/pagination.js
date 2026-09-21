@@ -1,6 +1,6 @@
 // firebase 또는 API에서 불러온 전체 데이터로 대체 가능
 let allPosts = []; // 전체 게시글 데이터 배열
-const itemsPerPage = 20; // 페이지당 20개
+const itemsPerPage = 12; // 페이지당 20개
 let currentPage = 1;
 
 function getMaxPageButtons() {
