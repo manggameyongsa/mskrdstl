@@ -52,52 +52,84 @@ function renderGallery() {
   renderPagination();
 }
 
-// 2. 페이지네이션 바 렌더링 (▶, ▷ 적용)
+// 2. 페이지네이션 바 렌더링
+// PC: 숫자 최대 10개 / 모바일: 숫자 최대 5개
+// ▶ = 다음 숫자 묶음, ▷ = 마지막 페이지
 function renderPagination() {
   const paginationContainer = document.getElementById('pagination');
   if (!paginationContainer) return;
+
   paginationContainer.innerHTML = '';
 
   const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
+
+  // 20개 이하라서 페이지가 하나뿐이면 페이지 바를 표시하지 않음
   if (totalPages <= 1) return;
 
   const maxButtons = getMaxPageButtons();
+
+  // 현재 페이지가 속한 숫자 그룹
   const currentGroup = Math.floor((currentPage - 1) / maxButtons);
   const startPage = currentGroup * maxButtons + 1;
   const endPage = Math.min(startPage + maxButtons - 1, totalPages);
 
-  // ▶ 버튼 (다음 페이지 그룹)
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = '▶';
-  nextBtn.disabled = endPage >= totalPages;
-  nextBtn.onclick = () => {
-    currentPage = endPage + 1;
-    renderGallery();
-  };
-
-  // ▷ 버튼 (맨 끝 페이지)
-  const lastBtn = document.createElement('button');
-  lastBtn.textContent = '▷';
-  lastBtn.disabled = currentPage === totalPages;
-  lastBtn.onclick = () => {
-    currentPage = totalPages;
-    renderGallery();
-  };
-
   // 숫자 페이지 버튼
   for (let i = startPage; i <= endPage; i++) {
     const pageBtn = document.createElement('button');
+    pageBtn.type = 'button';
     pageBtn.textContent = i;
-    if (i === currentPage) pageBtn.classList.add('active');
-    pageBtn.onclick = () => {
+
+    if (i === currentPage) {
+      pageBtn.classList.add('active');
+      pageBtn.setAttribute('aria-current', 'page');
+    }
+
+    pageBtn.addEventListener('click', () => {
+      if (i === currentPage) return;
       currentPage = i;
       renderGallery();
-    };
+    });
+
     paginationContainer.appendChild(pageBtn);
   }
 
-  paginationContainer.appendChild(nextBtn);
-  paginationContainer.appendChild(lastBtn);
+  // 현재 숫자 범위를 넘어가는 페이지가 있을 때만 화살표 표시
+  if (totalPages > maxButtons) {
+    // ▶ : 다음 숫자 묶음의 첫 페이지
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.textContent = '▶';
+    nextBtn.title = '다음 페이지 묶음';
+    nextBtn.setAttribute('aria-label', '다음 페이지 묶음');
+
+    if (endPage >= totalPages) {
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.addEventListener('click', () => {
+        currentPage = endPage + 1;
+        renderGallery();
+      });
+    }
+
+    // ▷ : 맨 마지막 페이지
+    const lastBtn = document.createElement('button');
+    lastBtn.type = 'button';
+    lastBtn.textContent = '▷';
+    lastBtn.title = '마지막 페이지';
+    lastBtn.setAttribute('aria-label', '마지막 페이지');
+
+    if (currentPage === totalPages) {
+      lastBtn.disabled = true;
+    } else {
+      lastBtn.addEventListener('click', () => {
+        currentPage = totalPages;
+        renderGallery();
+      });
+    }
+
+    paginationContainer.appendChild(nextBtn);
+    paginationContainer.appendChild(lastBtn);
+  }
 }
 
 // Firestore 실시간 로드
