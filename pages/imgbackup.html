@@ -1,6 +1,5 @@
 <link rel="stylesheet" href="../styles/common.css">
 <style>
-  /* 기존 스타일 유지 */
   .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-family: var(--font-title); }
   .board-header h1 { margin: 0; }
   .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-back-color); overflow: auto; }
@@ -36,6 +35,45 @@
   .detail-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
   @media (max-width: 768px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+
+  /* imgbackup 페이지네이션 */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+  }
+  .pagination-container button {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid #333;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font: inherit;
+  }
+  .pagination-container button.active {
+    background: #333;
+    color: #fff;
+    font-weight: bold;
+  }
+  .pagination-container button:disabled {
+    opacity: .35;
+    cursor: default;
+  }
+  @media (max-width: 768px) {
+    .pagination-container {
+      gap: 4px;
+    }
+    .pagination-container button {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 6px;
+    }
+  }
 </style>
 
 <main>
@@ -122,7 +160,6 @@
     </div>
   </div>
 </main>
-<script type="module" src="./script/imgbackup.js"></script>
 <script type="module">
   // js에서 설정을 가져옵니다. (경로 주의)
   import { firebaseConfig } from "../script/firebase-config.js";
@@ -230,36 +267,112 @@
   };
 
 // 1. 화면에 글 목록을 그려주는 전용 함수 (검색 결과도 이걸로 그려요!)
-function renderPostList(posts) {
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; 
-    const template = document.getElementById('post-card-template');
+const ITEMS_PER_PAGE = 9;
+let currentPage = 1;
+let currentPostList = [];
 
-    posts.forEach((post) => {
-      const card = template.content.cloneNode(true);
-      const cardDiv = card.querySelector('.post-card');
-      
-      card.querySelector('.main-title').textContent = post.title;
-      card.querySelector('.main-subtitle').textContent = post.subtitle || '';
+function getPageButtonCount() {
+  return window.matchMedia('(max-width: 768px)').matches ? 5 : 10;
+}
 
-      const thumb = card.querySelector('.post-thumbnail');
+function renderPagination(totalPosts) {
+  const pagination = document.getElementById('pagination');
+  if (!pagination) return;
 
-      // [수정된 부분] 단일 이미지(imageUrl) 또는 다중 이미지의 첫 번째(imageUrls[0])를 확인합니다.
-      const displayImg = post.imageUrl || (post.imageUrls && post.imageUrls[0]);
+  pagination.innerHTML = '';
 
-      if (displayImg) {
-        // 이미지가 있으면 이미지 태그 생성
-        thumb.innerHTML = `<img src="${displayImg}" onerror="this.src='https://via.placeholder.com/150'">`;
-      } else {
-        // 이미지가 아예 없으면 제목의 첫 글자를 썸네일로 표시
-        const initials = (post.title || 'Post').charAt(0).toUpperCase();
-        thumb.innerHTML = `<div class="post-thumbnail-placeholder">${initials}</div>`;
-      }
-
-      cardDiv.onclick = () => openDetailModal(post.id);
-      gallery.appendChild(cardDiv);
-    });
+  const totalPages = Math.ceil(totalPosts / ITEMS_PER_PAGE);
+  if (totalPages <= 1) {
+    pagination.style.display = 'none';
+    return;
   }
+
+  pagination.style.display = 'flex';
+
+  const maxButtons = getPageButtonCount();
+  const groupStart = Math.floor((currentPage - 1) / maxButtons) * maxButtons + 1;
+  const groupEnd = Math.min(groupStart + maxButtons - 1, totalPages);
+
+  const addButton = (label, targetPage, disabled = false, className = '') => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    if (className) button.classList.add(className);
+    if (disabled) {
+      button.disabled = true;
+    } else {
+      button.addEventListener('click', () => {
+        currentPage = targetPage;
+        renderPostList(currentPostList, false);
+        document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    pagination.appendChild(button);
+  };
+
+  for (let page = groupStart; page <= groupEnd; page++) {
+    addButton(String(page), page, false, page === currentPage ? 'active' : '');
+  }
+
+  // 숫자 그룹이 더 남아 있을 때만 ▶ / ▷ 표시
+  if (totalPages > maxButtons) {
+    addButton(
+      '▶',
+      groupEnd + 1,
+      groupEnd >= totalPages,
+      'next-group'
+    );
+
+    addButton(
+      '▷',
+      totalPages,
+      currentPage === totalPages,
+      'last-page'
+    );
+  }
+}
+
+// 실제 화면에 글 목록을 그리는 함수
+function renderPostList(posts, resetPage = true) {
+  const gallery = document.getElementById('gallery');
+  if (!gallery) return;
+
+  currentPostList = Array.isArray(posts) ? posts : [];
+
+  if (resetPage) currentPage = 1;
+
+  const totalPages = Math.max(1, Math.ceil(currentPostList.length / ITEMS_PER_PAGE));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  gallery.innerHTML = '';
+  const template = document.getElementById('post-card-template');
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pagePosts = currentPostList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  pagePosts.forEach((post) => {
+    const card = template.content.cloneNode(true);
+    const cardDiv = card.querySelector('.post-card');
+
+    card.querySelector('.main-title').textContent = post.title;
+    card.querySelector('.main-subtitle').textContent = post.subtitle || '';
+
+    const thumb = card.querySelector('.post-thumbnail');
+    const displayImg = post.imageUrl || (post.imageUrls && post.imageUrls[0]);
+
+    if (displayImg) {
+      thumb.innerHTML = `<img src="${displayImg}" onerror="this.src='https://via.placeholder.com/150'">`;
+    } else {
+      const initials = (post.title || 'Post').charAt(0).toUpperCase();
+      thumb.innerHTML = `<div class="post-thumbnail-placeholder">${initials}</div>`;
+    }
+
+    cardDiv.onclick = () => openDetailModal(post.id);
+    gallery.appendChild(cardDiv);
+  });
+
+  renderPagination(currentPostList.length);
+}
 
   // 2. 파이어베이스에서 데이터를 실시간으로 가져오는 함수
   window.loadPosts = () => {
@@ -272,10 +385,10 @@ function renderPostList(posts) {
       });
       
       // [중요] 데이터를 다 가져오면 화면에 전체 목록을 그립니다.
-      renderPostList(Object.values(allPosts));
+      renderPostList(Object.values(allPosts), true);
       
-      // [추가] 이제 검색 기능을 연결합니다. (외부 함수 호출)
-      setupSearch(allPosts, renderPostList);
+      // 검색 결과도 동일하게 9개씩 페이지 처리
+      setupSearch(allPosts, (posts) => renderPostList(posts, true));
     });
   };
   
@@ -337,203 +450,4 @@ window.openDetailModal = (postId) => {
  setupModalOutsideClick('write-modal', 'detail-modal', window.closeWriteModal, window.closeDetailModal);
   
   document.getElementById('write-btn').onclick = openWriteModal;
-</script>
-
-
-<script>
-/* IMG BACKUP pagination patch
-   PC: 10 page numbers / Mobile: 5 page numbers
-   20 posts per page
-   ▶ = next number group / ▷ = last page
-*/
-(function () {
-  const PAGE_SIZE = 20;
-  let page = 1;
-
-  function isMobile() {
-    return window.matchMedia('(max-width: 767px)').matches;
-  }
-
-  function getPostsContainer() {
-    return document.querySelector(
-      '#post-list, #gallery, .post-list, .gallery, .gallery-grid, .posts, .image-grid'
-    );
-  }
-
-  function getPagination() {
-    let el = document.getElementById('pagination');
-    if (!el) {
-      const host = getPostsContainer();
-      if (!host) return null;
-      el = document.createElement('nav');
-      el.id = 'pagination';
-      el.setAttribute('aria-label', '페이지 탐색');
-      host.parentNode.insertBefore(el, host.nextSibling);
-    }
-    return el;
-  }
-
-  function getCards() {
-    const host = getPostsContainer();
-    if (!host) return [];
-    return Array.from(host.children).filter(function (el) {
-      return el.id !== 'pagination' && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE';
-    });
-  }
-
-  function renderPagination(total) {
-    const box = getPagination();
-    if (!box) return;
-
-    box.innerHTML = '';
-    const totalPages = Math.ceil(total / PAGE_SIZE);
-
-    if (totalPages <= 1) {
-      box.style.display = 'none';
-      return;
-    }
-
-    box.style.display = 'flex';
-
-    const maxButtons = isMobile() ? 5 : 10;
-    const group = Math.floor((page - 1) / maxButtons);
-    const start = group * maxButtons + 1;
-    const end = Math.min(start + maxButtons - 1, totalPages);
-
-    function button(label, target, disabled, extraClass) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = label;
-      if (extraClass) b.className = extraClass;
-      if (disabled) {
-        b.disabled = true;
-      } else {
-        b.addEventListener('click', function () {
-          page = target;
-          render();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      }
-      box.appendChild(b);
-    }
-
-    for (let i = start; i <= end; i++) {
-      button(String(i), i, false, i === page ? 'active' : '');
-    }
-
-    if (totalPages > maxButtons) {
-      button('▶', end + 1, end >= totalPages, 'next-group');
-      button('▷', totalPages, page === totalPages, 'last-page');
-    }
-  }
-
-  function render() {
-    const cards = getCards();
-    if (!cards.length) return;
-
-    const totalPages = Math.ceil(cards.length / PAGE_SIZE);
-    if (page > totalPages) page = totalPages;
-
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE;
-
-    cards.forEach(function (card, index) {
-      card.style.display = index >= from && index < to ? '' : 'none';
-    });
-
-    renderPagination(cards.length);
-  }
-
-  function injectStyle() {
-    if (document.getElementById('imgbackup-pagination-style')) return;
-    const style = document.createElement('style');
-    style.id = 'imgbackup-pagination-style';
-    style.textContent = `
-      #pagination {
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        gap:6px;
-        margin:30px auto;
-        flex-wrap:wrap;
-      }
-      #pagination button {
-        min-width:34px;
-        height:34px;
-        padding:0 8px;
-        border:1px solid currentColor;
-        background:transparent;
-        cursor:pointer;
-        font:inherit;
-      }
-      #pagination button.active {
-        font-weight:700;
-      }
-      #pagination button:disabled {
-        opacity:.35;
-        cursor:default;
-      }
-      @media (max-width:767px) {
-        #pagination {
-          gap:4px;
-          margin:24px auto;
-        }
-        #pagination button {
-          min-width:32px;
-          height:32px;
-          padding:0 6px;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  function start() {
-    injectStyle();
-
-    // 기존 페이지가 게시글을 동적으로 불러오는 경우를 기다림
-    let lastCount = -1;
-    let stable = 0;
-
-    function watch() {
-      const count = getCards().length;
-      if (count > 0) {
-        if (count !== lastCount) {
-          lastCount = count;
-          page = 1;
-          render();
-          stable = 0;
-        } else {
-          stable++;
-        }
-      }
-      if (stable < 8) setTimeout(watch, 300);
-    }
-
-    watch();
-
-    // 기존 렌더링 이후에도 새 게시글이 들어오면 다시 페이지네이션
-    const observer = new MutationObserver(function () {
-      const count = getCards().length;
-      if (count !== lastCount && count > 0) {
-        lastCount = count;
-        page = Math.min(page, Math.max(1, Math.ceil(count / PAGE_SIZE)));
-        render();
-      }
-    });
-
-    const host = getPostsContainer();
-    if (host) observer.observe(host, { childList: true });
-
-    window.addEventListener('resize', function () {
-      render();
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
-})();
-</script>
+</script>\
