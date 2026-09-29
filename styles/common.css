@@ -186,7 +186,7 @@ main{
 
 #content{
   width: 100%;
-  max-width: 80vw;
+  max-width: 1200px;
   height: 96vh;
   max-height: 800px;
   display: flex;
